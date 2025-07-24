@@ -1,0 +1,26 @@
+[project]
+name = "procastro"
+version = "0.0.1"
+description = "Framework to easily schedule astronomical observations"
+requires-python = ">=3.13"
+
+
+authors = ["Patricio Rojo <pato@das.uchile.cl>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+documentation = "https://obsastro.readthedocs.io/en/latest/"
+repository = "https://github.com/duckrojo/obsastro"
+exclude = [
+    "execs"
+]
+dependencies = [
+    "astropy>=7.1.0",
+    "astroquery>=0.4.10",
+    "cartopy>=0.24.1",
+    "jplephem>=2.23",
+    "matplotlib>=3.10.3",
+    "pandas>=2.3.1",
+    "platformdirs>=4.3.8",
+    "tomli-w>=1.2.0",
+]
+

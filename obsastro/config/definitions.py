@@ -1,0 +1,2 @@
+AppName = "obsastro"
+AppAuthor = "duckrojo"
