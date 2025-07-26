@@ -1,13 +1,9 @@
-import datetime
-
 import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib.patches import Circle
 
 import astropy.time as apt
 import astropy.units as u
 
-from procastro.astro import body_map
+from obsastro.solar_system.map import body_map
 
 ##########################################
 #
@@ -65,5 +61,5 @@ ret = body_map("mars", "lasilla", times, detail="Color Viking",
                      },
 #               filename="moon.mpg",
                 fps=30, dpi=100,
-                verbose=True
+                # verbose=True
                 )

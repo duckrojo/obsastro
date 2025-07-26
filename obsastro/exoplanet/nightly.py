@@ -18,18 +18,10 @@
 # Contributors: Pablo Cañas
 #
 
-import os.path
-from pathlib import Path
-import pyvo as vo
-import pyvo.dal.exceptions
 
-import procastro as pa
-from procastro.api_provider.api_service import ApiResult, ApiService
-import procastro.astro as paa
-import matplotlib as mpl
+from obsastro.api_provider.api_service import ApiResult, ApiService
 import numpy as np
 import pandas as pd
-import time
 from typing import Union, Optional, Tuple
 
 import astropy.coordinates as apc
@@ -42,20 +34,20 @@ import matplotlib.axes
 from matplotlib import figure
 import matplotlib as mpl
 
-import procastro as pa
-import procastro.astro as paa
-import procastro.astro.coordinates
-from procastro.config import config_user
+from obsastro.cache.cache import AstroCache
+from obsastro.utils.coordinates import hour_angle_for_altitude
+from obsastro.utils.general import figaxes
 
 TwoTuple = Tuple[float, float]
 
 __all__ = ['query_full_exoplanet_db', 'Nightly']
 
-exoplanet_cache= paa.AstroCache(max_cache=int(1e12), 
-                                lifetime=7,
-                                verbose= False, 
-                                force = False, 
-                                label_on_disk='exoplanet_db')
+exoplanet_cache = AstroCache(max_cache=int(1e12),
+                             lifetime=7,
+                             verbose= False,
+                             force = False,
+                             label_on_disk='exoplanet',
+                             )
 
 
 @exoplanet_cache
@@ -150,7 +142,8 @@ class Nightly:
 
         # create Dataframe and update missing magnitude
         # TODO: Check the type of the return parameters!!!
-        planets = query_full_exoplanet_db(force=force_reload)
+        planets = query_full_exoplanet_db("Full exoplanet database. This text is only for the cache's hashing",
+                                          force=force_reload)
         no_filter_data = planets['sy_vmag'] == 0
         planets.loc[:, 'sy_vmag'].where(~no_filter_data, other=planets['sy_gmag'][no_filter_data], inplace=True)
         self._planets_all = planets
@@ -291,10 +284,10 @@ class Nightly:
         self._planets = planets.copy()
 
     def _hour_angle_for_altitude(self, skycoord, altitude):
-        if not isinstance(altitude, u.Quantity):
-            altitude = (altitude*u.degree).to(u.radian).value
+        if isinstance(altitude, u.Quantity):
+            altitude = altitude.to(u.degree).value
 
-        return procastro.astro.coordinates.hour_angle_for_altitude(skycoord.dec.radian, self._observatory.lat.radian, altitude)
+        return hour_angle_for_altitude(skycoord.dec.radian, self._observatory.lat.radian, altitude)
 
     def _ephemeris(self):
         planets = self._planets.copy()
@@ -306,8 +299,8 @@ class Nightly:
 
         delta_ra = skycoords.ra.hourangle - self._sidereal_at_sets[0]
         delta_ra[delta_ra < -12] += 24
-        planets['starrise'] = (self._start_night+(delta_ra - hour_angle_sets.value)*u.sday/24).jd
-        planets['starset'] = (self._start_night+(delta_ra + hour_angle_sets.value)*u.sday/24).jd
+        planets['starrise'] = (self._start_night + (delta_ra - hour_angle_sets.value)*u.sday/24).jd
+        planets['starset'] = (self._start_night + (delta_ra + hour_angle_sets.value)*u.sday/24).jd
 
         planets['start_observation'] = planets['transit_i'] - self._constraints['baseline_max']/24
         planets['start_observation'] = _choose(planets, 'start_observation', self._start_night.jd, return_max=True)
@@ -483,7 +476,7 @@ class Nightly:
         self.apply_filters_needed()
         filtered_planets = self._planets.sort_values('transit_i', axis=0)
 
-        f, ax = pa.figaxes(ax, figsize=(10, 15))
+        f, ax = figaxes(ax, figsize=(10, 15))
         self.figure = f
         cum_altitude = 0  # cumulative offset
         cmap = mpl.cm.get_cmap(name='OrRd')

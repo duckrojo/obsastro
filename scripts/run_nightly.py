@@ -1,10 +1,10 @@
 import matplotlib
-import procastro.obsrv as pao
+import obsastro.exoplanet as oae
 
 matplotlib.use('TkAgg')
 
 print("Initializing...")
-night = pao.Nightly()
+night = oae.Nightly()
 
 print(" plotting...")
 night.plot("2025-05-06")

@@ -431,8 +431,7 @@ def hour_angle_for_altitude(dec: np.ndarray | float,
 
     fail = np.abs(cos_ha) > 1
     if isinstance(fail, np.ndarray):
-        if any(fail):
-            raise ValueError(f"One of the objects with declination {dec} does not reach altitude {altitude_deg} from site")
+        cos_ha[fail] = np.nan
     else:
         if fail:
             raise ValueError(f"Object with declination {dec} does not reach altitude {altitude_deg} from site")

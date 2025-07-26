@@ -12,6 +12,7 @@ import astropy.time as apt
 from obsastro.utils.coordinates import find_time_for_altitude, find_target, moon_distance
 from obsastro.utils.exoplanet import get_transit_ephemeris_file, query_transit_ephemeris
 
+__all__ = ['ExoPlanet']
 
 class ExoPlanet:
     def __init__(self, name, timespan,
