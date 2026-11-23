@@ -7,7 +7,7 @@ print("Initializing...")
 night = oae.Nightly()
 
 print(" plotting...")
-night.plot("2025-05-06")
+night.plot("2026-11-26", save_dir='out')
 
 night.show()
 # night.savefig("nightly.png")
