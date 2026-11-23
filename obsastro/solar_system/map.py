@@ -125,6 +125,7 @@ class BodyGeometry:
         unit_with_sun_x = self._rotate_to_subsol.apply(position)
 
         delta_ra, delta_dec = self.ang_diam * unit_with_obs_x[1:] / 2
+        delta_ra *= -1  # east is to the left
         local_time_location = (np.arctan2(*unit_with_sun_x[:2][::-1]) + np.pi) * 12 / np.pi
         incoming_angle = np.arccos(unit_with_sun_x[0]) * 180 / np.pi
         emission_angle = np.arccos(unit_with_obs_x[0]) * 180 / np.pi
@@ -160,11 +161,11 @@ class BodyVisualizer:
 
     @staticmethod
     def get_orthographic(platecarree_image,
-                     sub_obs_lon,
-                     sub_obs_lat,
-                     marks=None,
-                     show_poles="",
-                     ):
+                         sub_obs_lon,
+                         sub_obs_lat,
+                         marks=None,
+                         show_poles="",
+                         ):
         """
         Returns orthographic projection with the specified center.
 
