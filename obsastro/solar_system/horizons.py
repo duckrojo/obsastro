@@ -458,14 +458,19 @@ class HorizonsInterface:
             If the body is not recognized
         """
         bodies = {'mercury': 199,
-                'venus': 299,
-                'moon': 301,
-                'luna': 301,
-                'mars': 499,
-                'jupiter': 599,
-                'saturn': 699,
-                'uranus': 799,
-                'neptune': 899,
+                  'venus': 299,
+                  'moon': 301,
+                  'luna': 301,
+                  'mars': 499,
+                  'jupiter': 599,
+                  'io': 501,
+                  'europa': 502,
+                  'saturn': 699,
+                  'dione': 604,
+                  'rhea': 605,
+                  'uranus': 799,
+                  'neptune': 899,
+
                 }
         match body:
             case int():

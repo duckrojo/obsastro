@@ -15,7 +15,7 @@ exclude = [
 ]
 
 dependencies = [
-    "astropy>=7.1.0",
+    "astropy==8.0.1",
     "astroquery>=0.4.10",
     "cachetools>=6.1.0",
     "cartopy>=0.24.1",

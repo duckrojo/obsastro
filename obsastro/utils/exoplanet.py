@@ -107,7 +107,7 @@ def query_transit_ephemeris(target):
 
     print(f"Attempting to query transit information for '{target}' -> '{target_fmtd}'")
 
-    query = f"SELECT pl_name,pl_tranmid,pl_orbper,pl_trandur FROM exo_tap.pscomppars " \
+    query = f"SELECT pl_name,pl_tranmid,pl_orbper,pl_trandur FROM pscomppars " \
             f"WHERE lower(pl_name) like '%{target_fmtd}%' "
     resultset = exo_service.search(query)
     try:
