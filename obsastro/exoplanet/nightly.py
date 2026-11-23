@@ -17,7 +17,7 @@
 #
 # Contributors: Pablo Cañas
 #
-
+from pathlib import Path
 
 from obsastro.api_provider.api_service import ApiResult, ApiService
 import numpy as np
@@ -145,7 +145,7 @@ class Nightly:
         planets = query_full_exoplanet_db("Full exoplanet database. This text is only for the cache's hashing",
                                           force=force_reload)
         no_filter_data = planets['sy_vmag'] == 0
-        planets.loc[:, 'sy_vmag'].where(~no_filter_data, other=planets['sy_gmag'][no_filter_data], inplace=True)
+        planets.loc[:, 'sy_vmag'] = planets['sy_vmag'].where(~no_filter_data, other=planets['sy_gmag'][no_filter_data])
         self._planets_all = planets
 
         self.observatory(observatory)
@@ -350,7 +350,7 @@ class Nightly:
         planets = self._planets
         night_length = (self._end_night - self._start_night).to(u.hour).value
         times_at_lims = apt.Time([self._start_night, self._end_night])
-        planet_hour_angle = planets['ra'] - self._sidereal_at_sets[0]
+        planet_hour_angle = planets['ra']/15 - self._sidereal_at_sets[0]
         planet_hour_angle[planet_hour_angle < 0] += 24
 
         # Any star whose max altitude is reached during the night is a possible observation, otherwise they need
@@ -442,6 +442,7 @@ class Nightly:
              ax: Union[matplotlib.axes.Axes, figure.Figure, int] = None,
              mark_ra: Optional[TwoTuple] = None,
              colorbar: bool = False,    # todo: enable this once rank is working
+             save_dir: str = None,
              ):
         """
         Plots the altitudes of the encountered exoplanet's stars for the given date with information about the
@@ -463,6 +464,8 @@ class Nightly:
                 then the plot will have the complete observations.
             altitude_separation : float
                 separation in degrees between vertical altitude curves
+            save_dir : str
+                 Directory to save the plot to, if None the plot will not be saved
 
         Returns
         -------
@@ -566,10 +569,14 @@ class Nightly:
         if lims[1] < lims[0]:
             lims[1] += 24
         ax2.set_xlim(lims)
+        ax2.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(lambda x, _: f"{x % 24:g}$^h$"))
         ax2.set_xlabel("Local Apparent Sidereal Time")
 
         if mark_ra is not None:
             ax2.axvspan(mark_ra[0], mark_ra[1], alpha=0.2, color='gray')
+
+        if save_dir is not None:
+            self.savefig(Path(save_dir)/(date+".png"))
 
         return self
 
