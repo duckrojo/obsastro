@@ -36,8 +36,21 @@ class ExoPlanet:
         self.phase_info = self.compute_daily_phases()
 
     def sort_by_coverage(self, min_phase, max_phase,
-                         min_coverage=0.5):
+                         min_coverage=0.5, overheads=5):
+        """
+        Sort days by coverage
 
+        Parameters
+        ----------
+        min_phase:
+           minimum phase to show
+        max_phase:
+           maximum phase to show
+        min_coverage: float
+           Minimum coverage fraction to be considered
+        overheads: float
+           Minutes of pointing overhead to be taken into account
+        """
         phase_from = (self.phase_info['min_phases'].data - min_phase) % 1
         phase_to = (self.phase_info['max_phases'].data - min_phase) % 1
         max_phase = np.ones(len(phase_to))*((max_phase - min_phase) % 1)
@@ -64,6 +77,15 @@ class ExoPlanet:
         delta_from[phase_to > phase_from] = 0
         delta_to = phase_to - max_phase
         delta_to = delta_to * (delta_to > 0)
+
+        # take overheads (converted to phase first) from the beginning unless there is no available time in which case, take from the end
+        overheads = (overheads*u.min/period).to(u.dimensionless_unscaled).value
+
+        delta_from -= overheads
+        overheads = (delta_from < 0)*delta_from
+        delta_from[delta_from<0] = 0
+        delta_to -= overheads
+
         for idx in sorted_idx[::-1]:
             if coverage[idx] < min_coverage:
                 break
@@ -148,6 +170,7 @@ class ExoPlanet:
     def plot_phases(self, ax=None,
                     shade=None,
                     show=False,
+                    overheads=5,
                     ):
         t0, t1 = self.timespan
         ndays = int((t1-t0).to(u.day).value)
@@ -203,7 +226,7 @@ class ExoPlanet:
                 ax.axhspan(0, shade[1], color="gray", alpha=0.5, zorder=0)
             phase_range = ((shade[1]-shade[0]) * self.transit_info['period']).to(u.min).value
             msg = f"Shading {shade[0]} - {shade[1]} ({phase_range // 60:.0f}h{phase_range % 60:.1f}m)"
-            self.sort_by_coverage(shade[0], shade[1])
+            self.sort_by_coverage(shade[0], shade[1], overheads=overheads)
         else:
             msg = ""
 
